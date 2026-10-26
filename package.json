@@ -1,0 +1,29 @@
+{
+  "name": "cinesearch",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n next,db -c cyan,magenta \"next dev\" \"json-server --watch db.json --port 4000\"",
+    "dev:next": "next dev",
+    "dev:db": "json-server --watch db.json --port 4000",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@clerk/nextjs": "^5.7.6",
+    "@clerk/themes": "^2.4.57",
+    "axios": "^1.7.7",
+    "next": "14.2.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "concurrently": "^9.0.1",
+    "json-server": "0.17.4",
+    "typescript": "^5.5.4"
+  }
+}
