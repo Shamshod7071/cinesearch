@@ -1,11 +1,8 @@
 import { create } from "zustand";
-import { local } from "@/lib/api";
+import { lists } from "@/lib/api";
 import type { ListItem } from "@/lib/types";
 
 export type ListName = "watchlist" | "favorites";
-
-// json-server'dagi yozuv: har bir foydalanuvchining ro'yxati alohida (userId + unikal id)
-type Row = ListItem & { userId: string; itemId: string };
 
 interface State {
   userId: string | null;
@@ -17,9 +14,6 @@ interface State {
   toggle: (list: ListName, item: ListItem) => Promise<void>;
 }
 
-const rowId = (userId: string, id: string) => `${userId}_${id}`;
-const fromRow = ({ userId: _u, itemId, ...rest }: Row): ListItem => ({ ...rest, id: itemId });
-
 export const useListStore = create<State>((set, get) => ({
   userId: null,
   watchlist: [],
@@ -28,14 +22,11 @@ export const useListStore = create<State>((set, get) => ({
   load: async (userId) => {
     set({ userId });
     try {
-      const [w, f] = await Promise.all([
-        local.get<Row[]>("/watchlist", { params: { userId } }),
-        local.get<Row[]>("/favorites", { params: { userId } }),
-      ]);
+      const { data } = await lists.get<{ watchlist: ListItem[]; favorites: ListItem[] }>("/");
       if (get().userId !== userId) return;
-      set({ watchlist: w.data.map(fromRow), favorites: f.data.map(fromRow) });
+      set({ watchlist: data.watchlist, favorites: data.favorites });
     } catch {
-      console.warn("json-server ishlamayapti (npm run dev:db)");
+      console.warn("Ro'yxatlarni yuklab bo'lmadi (/api/lists)");
     }
   },
 
@@ -52,9 +43,10 @@ export const useListStore = create<State>((set, get) => ({
       [list]: exists ? s[list].filter((i) => i.id !== item.id) : [...s[list], item],
     }) as Partial<State>);
     try {
-      if (exists) await local.delete(`/${list}/${encodeURIComponent(rowId(userId, item.id))}`);
-      else await local.post(`/${list}`, { ...item, id: rowId(userId, item.id), itemId: item.id, userId });
-    } catch {
+      await lists.post("/", { list, action: exists ? "remove" : "add", item });
+    } catch (e: any) {
+      const msg = e?.response?.data?.status_message;
+      if (msg) alert(msg);
       get().load(userId); // roll back to server state
     }
   },

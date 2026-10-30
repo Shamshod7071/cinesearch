@@ -21,7 +21,7 @@ export interface Genre {
 }
 
 export interface ListItem {
-  id: string; // "movie-123" (json-server id)
+  id: string; // "movie-123"
   tmdbId: number;
   type: ItemType;
   title: string;

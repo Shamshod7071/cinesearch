@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently -n next,db -c cyan,magenta \"next dev\" \"json-server --watch db.json --port 4000\"",
-    "dev:next": "next dev",
-    "dev:db": "json-server --watch db.json --port 4000",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
